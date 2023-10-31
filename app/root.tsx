@@ -21,6 +21,7 @@ import type {CustomerAccessToken} from '@shopify/hydrogen/storefront-api-types';
 import favicon from '../public/favicon.svg';
 import resetStyles from './styles/reset.css';
 import appStyles from './styles/app.css';
+import tailwindCss from './styles/tailwind.css';
 import {Layout} from '~/components/Layout';
 
 /**
@@ -46,6 +47,7 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
 
 export function links() {
   return [
+    {rel: 'stylesheet', href: tailwindCss},
     {rel: 'stylesheet', href: resetStyles},
     {rel: 'stylesheet', href: appStyles},
     {
@@ -112,7 +114,7 @@ export default function App() {
   const data = useLoaderData<typeof loader>();
 
   return (
-    <html lang="en">
+    <html lang="en" dir="rtl">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
