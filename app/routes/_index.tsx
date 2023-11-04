@@ -6,7 +6,7 @@ import {ProductList} from '~/components/ProductList';
 import {translations} from '~/translations';
 
 export const meta: MetaFunction = () => {
-  return [{title: 'Hydrogen | Home'}];
+  return [{title: 'زعتر سمر'}];
 };
 
 export async function loader({context}: LoaderFunctionArgs) {
