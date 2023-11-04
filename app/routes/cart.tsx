@@ -5,6 +5,7 @@ import {CartForm} from '@shopify/hydrogen';
 import {json, type ActionFunctionArgs} from '@shopify/remix-oxygen';
 import {CartMain} from '~/components/Cart';
 import {useRootLoaderData} from '~/root';
+import {translations} from '~/translations';
 
 export const meta: MetaFunction = () => {
   return [{title: `Hydrogen | Cart`}];
@@ -27,11 +28,14 @@ export async function action({request, context}: ActionFunctionArgs) {
   let status = 200;
   let result: CartQueryData;
 
+  console.log('laih here', inputs);
+
   switch (action) {
     case CartForm.ACTIONS.LinesAdd:
       result = await cart.addLines(inputs.lines);
       break;
     case CartForm.ACTIONS.LinesUpdate:
+      console.log(inputs);
       result = await cart.updateLines(inputs.lines);
       break;
     case CartForm.ACTIONS.LinesRemove:
@@ -89,9 +93,11 @@ export default function Cart() {
   const cartPromise = rootData.cart;
 
   return (
-    <div className="cart">
-      <h1>Cart</h1>
-      <Suspense fallback={<p>Loading cart ...</p>}>
+    <div className="max-w-2xl mx-auto pt-20 pb-16 px-4 sm:px-6 lg:max-w-7xl lg:px-8">
+      <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+        {translations.shoppingCart.ar}
+      </h1>
+      <Suspense fallback={<p></p>}>
         <Await
           resolve={cartPromise}
           errorElement={<div>An error occurred</div>}
