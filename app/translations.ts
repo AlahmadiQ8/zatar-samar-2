@@ -127,4 +127,12 @@ export const translations = {
     value: 'Keep shopping',
     ar: 'ارجع للرئيسية',
   },
+  sale: {
+    value: 'Sale',
+    ar: 'خصم',
+  },
+  notAvailable: {
+    value: 'Not available',
+    ar: 'غير متوفر',
+  },
 };

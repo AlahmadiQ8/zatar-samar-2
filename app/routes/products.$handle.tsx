@@ -20,16 +20,22 @@ import {
   type VariantOption,
   getSelectedProductOptions,
   CartForm,
+  flattenConnection,
 } from '@shopify/hydrogen';
 import type {
   CartLineInput,
   SelectedOption,
 } from '@shopify/hydrogen/storefront-api-types';
 import {getVariantUrl} from '~/utils';
+import {translations} from '~/translations';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
   return [{title: `Hydrogen | ${data?.product.title ?? ''}`}];
 };
+
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
 
 export async function loader({params, request, context}: LoaderFunctionArgs) {
   const {handle} = params;
@@ -117,7 +123,7 @@ export default function Product() {
   const {product, variants} = useLoaderData<typeof loader>();
   const {selectedVariant} = product;
   return (
-    <div className="product">
+    <div className="max-w-2xl mx-auto  py-24 sm:px-6 lg:max-w-7xl lg:px-8 lg:grid lg:grid-cols-2 lg:gap-x-8">
       <ProductImage image={selectedVariant?.image} />
       <ProductMain
         selectedVariant={selectedVariant}
@@ -135,6 +141,7 @@ function ProductImage({image}: {image: ProductVariantFragment['image']}) {
   return (
     <div className="product-image">
       <Image
+        className="rounded-lg lg:h-full lg:max-h-full lg:w-full lg:max-w-full h-60 w-60 max-w-60 object-center object-cover"
         alt={image.altText || 'Product Image'}
         aspectRatio="1/1"
         data={image}
@@ -156,9 +163,13 @@ function ProductMain({
 }) {
   const {title, descriptionHtml} = product;
   return (
-    <div className="product-main">
-      <h1>{title}</h1>
+    <div className="">
+      <h1 className="text-2xl font-extrabold tracking-tight text-gray-800 sm:text-4xl">
+        {title}
+      </h1>
       <ProductPrice selectedVariant={selectedVariant} />
+      <br />
+      <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
       <br />
       <Suspense
         fallback={
@@ -182,14 +193,6 @@ function ProductMain({
           )}
         </Await>
       </Suspense>
-      <br />
-      <br />
-      <p>
-        <strong>Description</strong>
-      </p>
-      <br />
-      <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
-      <br />
     </div>
   );
 }
@@ -203,17 +206,30 @@ function ProductPrice({
     <div className="product-price">
       {selectedVariant?.compareAtPrice ? (
         <>
-          <p>Sale</p>
+          <p>{translations.sale.ar}</p>
           <br />
           <div className="product-price-on-sale">
-            {selectedVariant ? <Money data={selectedVariant.price} /> : null}
+            {selectedVariant ? (
+              <Money
+                className="text-lg text-gray-900 sm:text-xl"
+                data={selectedVariant.price}
+              />
+            ) : null}
             <s>
-              <Money data={selectedVariant.compareAtPrice} />
+              <Money
+                className="text-lg text-gray-900 sm:text-xl"
+                data={selectedVariant.compareAtPrice}
+              />
             </s>
           </div>
         </>
       ) : (
-        selectedVariant?.price && <Money data={selectedVariant?.price} />
+        selectedVariant?.price && (
+          <Money
+            className="text-lg text-gray-900 sm:text-xl"
+            data={selectedVariant?.price}
+          />
+        )
       )}
     </div>
   );
@@ -229,7 +245,7 @@ function ProductForm({
   variants: Array<ProductVariantFragment>;
 }) {
   return (
-    <div className="product-form">
+    <div className="">
       <VariantSelector
         handle={product.handle}
         options={product.options}
@@ -237,7 +253,6 @@ function ProductForm({
       >
         {({option}) => <ProductOptions key={option.name} option={option} />}
       </VariantSelector>
-      <br />
       <AddToCartButton
         disabled={!selectedVariant || !selectedVariant.availableForSale}
         onClick={() => {
@@ -254,8 +269,16 @@ function ProductForm({
             : []
         }
       >
-        {selectedVariant?.availableForSale ? 'Add to cart' : 'Sold out'}
+        {selectedVariant?.availableForSale
+          ? translations.addToCart.ar
+          : translations.notAvailable.ar}
       </AddToCartButton>
+      <Link
+        to="/cart"
+        className="mt-2 md:mt-4 bg-[#000c] text-white hover:bg-[#000000b3] w-full rounded-md py-3 px-8 flex items-center justify-center text-base font-medium"
+      >
+        {translations.checkout.ar}
+      </Link>
     </div>
   );
 }
@@ -263,21 +286,28 @@ function ProductForm({
 function ProductOptions({option}: {option: VariantOption}) {
   return (
     <div className="product-options" key={option.name}>
-      <h5>{option.name}</h5>
-      <div className="product-options-grid">
+      <h5 className="block text-lg font-bold text-gray-900">
+        {translations[option.name as keyof typeof translations]?.ar}
+      </h5>
+      <div className="mt-1 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {option.values.map(({value, isAvailable, isActive, to}) => {
           return (
             <Link
-              className="product-options-item"
+              // className="product-options-item"
               key={option.name + value}
               prefetch="intent"
               preventScrollReset
               replace
               to={to}
-              style={{
-                border: isActive ? '1px solid black' : '1px solid transparent',
-                opacity: isAvailable ? 1 : 0.3,
-              }}
+              // style={{
+              //   border: isActive ? '1px solid black' : '1px solid transparent',
+              //   opacity: isAvailable ? 1 : 0.3,
+              // }}
+              className={classNames(
+                isActive ? 'ring-2 ring-indigo-500' : '',
+                'text-base font-medium text-gray-900',
+                'relative block border border-gray-300 rounded-lg p-4 cursor-pointer focus:outline-none',
+              )}
             >
               {value}
             </Link>
@@ -303,24 +333,32 @@ function AddToCartButton({
   onClick?: () => void;
 }) {
   return (
-    <CartForm route="/cart" inputs={{lines}} action={CartForm.ACTIONS.LinesAdd}>
-      {(fetcher: FetcherWithComponents<any>) => (
-        <>
-          <input
-            name="analytics"
-            type="hidden"
-            value={JSON.stringify(analytics)}
-          />
-          <button
-            type="submit"
-            onClick={onClick}
-            disabled={disabled ?? fetcher.state !== 'idle'}
-          >
-            {children}
-          </button>
-        </>
-      )}
-    </CartForm>
+    <div style={{maxWidth: '100% !important'}}>
+      <CartForm
+        route="/cart"
+        inputs={{lines}}
+        action={CartForm.ACTIONS.LinesAdd}
+      >
+        {(fetcher: FetcherWithComponents<any>) => (
+          <>
+            <input
+              name="analytics"
+              type="hidden"
+              value={JSON.stringify(analytics)}
+            />
+            <button
+              type="submit"
+              onClick={onClick}
+              disabled={disabled ?? fetcher.state !== 'idle'}
+              className="w-full bg-indigo-600 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500"
+              // className="bg-[#000c] text-white hover:bg-[#000000b3] w-full rounded-md py-3 px-8 flex items-center justify-center text-base font-medium"
+            >
+              {children}
+            </button>
+          </>
+        )}
+      </CartForm>
+    </div>
   );
 }
 

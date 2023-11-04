@@ -13,7 +13,7 @@ export function ProductCard({product}: {product: ProductType}) {
       to={`/products/${product.handle}`}
       className="group border rounded-lg"
     >
-      <div className="flex flex-col w-full overflow-hidden space-x-2 rtl:space-x-reverse">
+      <div className="flex flex-col w-full overflow-hidden">
         {images.nodes.length > 0 && (
           <Image
             data={images.nodes[0]}
@@ -24,9 +24,9 @@ export function ProductCard({product}: {product: ProductType}) {
             sizes="(min-width: 45em) 50vw, 100vw"
           />
         )}
-        <div className="mb-2">
+        <div className="mb-2 mx-2">
           <h3 className="mt-4 text-gray-700">{title}</h3>
-          <div className="flex rtl:space-x-reverse space-x-1 mt-1 text-lg font-medium text-gray-900 items-center">
+          <div className="flex  mt-1 text-lg font-medium text-gray-900 items-center">
             <Money data={priceRange.minVariantPrice} as="p" lang="ar" />
             {hasMoreThanOneVariant && <div>+</div>}
           </div>

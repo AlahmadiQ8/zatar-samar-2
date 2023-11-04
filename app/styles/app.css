@@ -402,12 +402,6 @@ aside li {
   width: 100%;
 }
 
-.product-main {
-  align-self: start;
-  position: sticky;
-  top: 6rem;
-}
-
 .product-price-on-sale {
   display: flex;
   grid-gap: 0.5rem;
