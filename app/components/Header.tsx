@@ -4,7 +4,7 @@ import type {LayoutProps} from './Layout';
 import {ShoppingBagIcon} from '@heroicons/react/24/outline';
 import {WhatsAppIcon} from './WhatsAppIcon';
 
-type HeaderProps = Pick<LayoutProps, 'header' | 'cart' | 'isLoggedIn'>;
+type HeaderProps = Pick<LayoutProps, 'header' | 'cart'>;
 
 export function Header({cart, header}: HeaderProps) {
   const {shop} = header;

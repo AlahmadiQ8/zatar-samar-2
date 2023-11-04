@@ -6,6 +6,9 @@ import type {
   FeaturedCollectionFragment,
   RecommendedProductsQuery,
 } from 'storefrontapi.generated';
+import {ProductCard} from '~/components/ProductCard';
+import {ProductList} from '~/components/ProductList';
+import {translations} from '~/translations';
 
 export const meta: MetaFunction = () => {
   return [{title: 'Hydrogen | Home'}];
@@ -24,31 +27,33 @@ export default function Homepage() {
   const data = useLoaderData<typeof loader>();
   return (
     <div className="home">
-      <FeaturedCollection collection={data.featuredCollection} />
+      <Hero />
+      {/* <FeaturedCollection collection={data.featuredCollection} /> */}
       <RecommendedProducts products={data.recommendedProducts} />
     </div>
   );
 }
 
-function FeaturedCollection({
-  collection,
-}: {
-  collection: FeaturedCollectionFragment;
-}) {
-  if (!collection) return null;
-  const image = collection?.image;
+export function Hero() {
   return (
-    <Link
-      className="featured-collection"
-      to={`/collections/${collection.handle}`}
-    >
-      {image && (
-        <div className="featured-collection-image">
-          <Image data={image} sizes="100vw" />
-        </div>
-      )}
-      <h1>{collection.title}</h1>
-    </Link>
+    <>
+      <div className="pt-20 lg:pt-0 lg:mt-16">
+        <img
+          width={1500}
+          height={951}
+          className="hidden lg:block h-full w-full object-cover object object-center"
+          src="/hero-2.svg"
+          alt="Zatar Samar Hero"
+        />
+        <img
+          width={914}
+          height={527}
+          className="block lg:hidden h-full w-full object-cover object-center"
+          src="/hero-2-sm.svg"
+          alt="Zatar Samar Hero"
+        />
+      </div>
+    </>
   );
 }
 
@@ -58,31 +63,13 @@ function RecommendedProducts({
   products: Promise<RecommendedProductsQuery>;
 }) {
   return (
-    <div className="recommended-products">
-      <h2>Recommended Products</h2>
+    <div className="p-5 md:p-12 shadow-xl rounded-xl mb-10">
+      <h2 className="text-gray-700 mb-8 text-2xl font-medium">
+        {translations.ourProducts.ar}
+      </h2>
       <Suspense fallback={<div>Loading...</div>}>
         <Await resolve={products}>
-          {({products}) => (
-            <div className="recommended-products-grid">
-              {products.nodes.map((product) => (
-                <Link
-                  key={product.id}
-                  className="recommended-product"
-                  to={`/products/${product.handle}`}
-                >
-                  <Image
-                    data={product.images.nodes[0]}
-                    aspectRatio="1/1"
-                    sizes="(min-width: 45em) 20vw, 50vw"
-                  />
-                  <h4>{product.title}</h4>
-                  <small>
-                    <Money data={product.priceRange.minVariantPrice} />
-                  </small>
-                </Link>
-              ))}
-            </div>
-          )}
+          {({products}) => <ProductList products={products.nodes} />}
         </Await>
       </Suspense>
       <br />
@@ -133,10 +120,15 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
         height
       }
     }
+    variants(first: 2) {
+      nodes {
+        id
+      }
+    }
   }
   query RecommendedProducts ($country: CountryCode, $language: LanguageCode)
     @inContext(country: $country, language: $language) {
-    products(first: 4, sortKey: UPDATED_AT, reverse: true) {
+    products(first: 100, sortKey: UPDATED_AT, reverse: true) {
       nodes {
         ...RecommendedProduct
       }

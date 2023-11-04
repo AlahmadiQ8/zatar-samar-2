@@ -31,9 +31,7 @@ export function Layout({
 }: LayoutProps) {
   return (
     <>
-      <CartAside cart={cart} />
-      <SearchAside />
-      <Header header={header} cart={cart} isLoggedIn={isLoggedIn} />
+      <Header header={header} cart={cart} />
       <main>{children}</main>
       <Suspense>
         <Await resolve={footer}>
